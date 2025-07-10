@@ -1,0 +1,18 @@
+.title-style{
+     font-family: "Playfair", serif;
+  font-optical-sizing: auto;
+  
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+
+.para-style{
+     font-family: "Outfit", sans-serif;
+  font-optical-sizing: auto;
+}
+
+.button-style{
+    font-family: "Bebas Neue", sans-serif;
+}
