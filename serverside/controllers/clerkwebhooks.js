@@ -2,10 +2,12 @@ import users from "../models/user.js"
 import { Webhook } from "svix"
 
 const clerkwebhooks = async (req, res) => {
-  console.log(" Webhook triggered")
+  console.log("🔔 Webhook triggered at", new Date().toISOString())
+  console.log("👉 Headers:", req.headers)
+  console.log("👉 Raw body (unverified):", JSON.stringify(req.body))
 
   try {
-   const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
+  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
 
     const headers = {
       'svix-id': req.headers['svix-id'],
@@ -14,7 +16,7 @@ const clerkwebhooks = async (req, res) => {
     }
 
     const event = wh.verify(JSON.stringify(req.body), headers)
-
+    
     const { data, type } = event
 
     const userData = {
