@@ -20,11 +20,12 @@ const clerkwebhooks = async (req, res) => {
     const { data, type } = event
 
     const userData = {
-      _id: data.id,
-      email: data.email_addresses[0].email_address,
-      userName: `${data.first_name} ${data.last_name}`,
-      image: data.image_url,
-    }
+  _id: data.id,
+  email: data.email_addresses?.[0]?.email_address || "",
+  userName: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+  image: data.image_url || "",
+}
+
 
     switch (type) {
       case 'user.created':
