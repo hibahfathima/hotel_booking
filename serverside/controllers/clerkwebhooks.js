@@ -1,73 +1,46 @@
-import users from "../models/user.js";
-//now import webHook function from svix because it contain the userdata
-import { Webhook } from "svix";
+import users from "../models/user.js"
+import { Webhook } from "svix"
 
+const clerkwebhooks = async (req, res) => {
+  console.log(" Webhook triggered")
 
+  try {
+   const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
 
-
-const clerkwebhooks = async () => {
-
-    try {
-        //now create an svix instance with clerk webhook sectret
-        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
-
-
-        //getting headers
-        const headers = {
-            'svix-id': req.headers['svix-id'],
-            'svix-timestamp': req.headers['svix-timestamp'],
-            'svix-signature': req.headers['svix-signature']
-        }
-
-
-        //veify the headers
-        await whook.verify(JSON.stringify(req.body), headers)
-
-
-        //geting data from request body
-        const { data, type } = req.body
-        const userData = {
-            _id: data.id,
-            email: data.email_addresses[0].email_address,
-            userName: data.first_name + " " + data.last_name,
-            image: data.image_url,
-            //the right side value in user data come from clerk
-
-        }
-
-
-
-
-        //switch cases for different events here{type}
-        switch (type) {
-            case 'user.created':{
-                await users.create(userData)
-                 break;
-            }
-             case 'user.updated':{
-                await users.findByIdAndUpdate(data.id,userData)
-                 break;
-            }
-             case 'user.deleted':{
-                await users.find(userData)
-                 break;
-            }
-              default:
-                break;
-              
-                
-               
-        
-           
-        }
-        res.json({success:true,message:'webook recieved'})
-
+    const headers = {
+      'svix-id': req.headers['svix-id'],
+      'svix-timestamp': req.headers['svix-timestamp'],
+      'svix-signature': req.headers['svix-signature']
     }
-    catch (err) {
-        console.log(err.message)
-        res.status(401).json({success:false,message:err.message})
 
+    const event = wh.verify(JSON.stringify(req.body), headers)
+
+    const { data, type } = event
+
+    const userData = {
+      _id: data.id,
+      email: data.email_addresses[0].email_address,
+      userName: `${data.first_name} ${data.last_name}`,
+      image: data.image_url,
     }
+
+    switch (type) {
+      case 'user.created':
+        await users.create(userData)
+        break
+      case 'user.updated':
+        await users.findByIdAndUpdate(data.id, userData)
+        break
+      case 'user.deleted':
+        await users.findByIdAndDelete(data.id)
+        break
+    }
+
+    res.json({ success: true })
+  } catch (err) {
+    console.log("Webhook error:", err.message)
+    res.status(400).json({ success: false, error: err.message })
+  }
 }
 
 export default clerkwebhooks

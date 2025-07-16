@@ -1,33 +1,26 @@
 import express from 'express'
-import 'dotenv/config'
 import cors from 'cors'
-import './configs/db.js'
+import 'dotenv/config'
 import { clerkMiddleware } from '@clerk/express'
-import clerkwebhooks from './controllers/clerkwebhooks.js'
+import './configs/db.js'
+import router from './routes/route.js'
 
-
-const app=express()
-app.use(cors())  //enable cross resource engine,that is establish a connection between frontend and backend
-
-
-//middleware
+const app = express()
 app.use(express.json())
+
+app.use(cors())
+
+
 app.use(clerkMiddleware())
-//Api to listen to clerkwebhooks
-app.use('/api/clerk',clerkwebhooks)
+app.use(router)
 
 
 
-
-const PORT =process.env.PORT ||3000
-
-app.get('/',(req,res)=>{
-    res.send("api is working perfectly")
+app.get('/', (req, res) => {
+  res.send("API is working perfectly")
 })
 
-app.listen(PORT,()=>{
-    console.log(`server running in port ${PORT}`)
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(`Server running in port ${PORT}`)
 })
-
-
-
